@@ -21,6 +21,11 @@
         "command": "timeTracker.openPanel",
         "title": "Open Time Tracker",
         "icon": "$(graph)"
+      },
+      {
+        "command": "timeTracker.generateTimeCard",
+        "title": "Generate Time Card",
+        "icon": "$(preview)"
       }
     ],
     "views": {
@@ -30,6 +35,15 @@
           "name": "Time Tracker",
           "icon": "$(watch)",
           "contextualTitle": "Time Tracker"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "timeTracker.generateTimeCard",
+          "when": "view == timeTrackerView",
+          "group": "navigation"
         }
       ]
     }

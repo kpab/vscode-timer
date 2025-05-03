@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deactivate = exports.activate = void 0;
+exports.TimeTracker = exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
 const timeTrackerProvider_1 = require("./timeTrackerProvider");
+const timeCardGenerator_1 = require("./timeCardGenerator");
 let statusBarItem;
 let timeTracker;
 function activate(context) {
@@ -22,6 +23,9 @@ function activate(context) {
         vscode.commands.executeCommand('workbench.view.explorer');
         vscode.commands.executeCommand('timeTrackerView.focus');
     });
+    const generateTimeCardCommand = vscode.commands.registerCommand('timeTracker.generateTimeCard', () => {
+        timeCardGenerator_1.TimeCardGenerator.generateTimeCard(context, timeTracker);
+    });
     // Time Tracker View Provider
     const timeTrackerProvider = new timeTrackerProvider_1.TimeTrackerProvider(context, timeTracker);
     vscode.window.registerTreeDataProvider('timeTrackerView', timeTrackerProvider);
@@ -33,7 +37,7 @@ function activate(context) {
     const interval = setInterval(() => {
         timeTracker.update();
     }, 60000); // 1分ごと
-    context.subscriptions.push(statusBarItem, toggleCommand, openPanelCommand, { dispose: () => clearInterval(interval) });
+    context.subscriptions.push(statusBarItem, toggleCommand, openPanelCommand, generateTimeCardCommand, { dispose: () => clearInterval(interval) });
 }
 exports.activate = activate;
 function deactivate() {
@@ -141,4 +145,5 @@ class TimeTracker {
         return this.fileTimers;
     }
 }
+exports.TimeTracker = TimeTracker;
 //# sourceMappingURL=extension.js.map

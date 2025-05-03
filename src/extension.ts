@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { TimeTrackerProvider } from './timeTrackerProvider';
+import { TimeCardGenerator } from './timeCardGenerator';
 
 let statusBarItem: vscode.StatusBarItem;
 let timeTracker: TimeTracker;
@@ -24,6 +25,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand('workbench.view.explorer');
         vscode.commands.executeCommand('timeTrackerView.focus');
     });
+    
+    const generateTimeCardCommand = vscode.commands.registerCommand('timeTracker.generateTimeCard', () => {
+        TimeCardGenerator.generateTimeCard(context, timeTracker);
+    });
 
     // Time Tracker View Provider
     const timeTrackerProvider = new TimeTrackerProvider(context, timeTracker);
@@ -43,6 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
         statusBarItem,
         toggleCommand,
         openPanelCommand,
+        generateTimeCardCommand,
         { dispose: () => clearInterval(interval) }
     );
 }
@@ -54,7 +60,7 @@ export function deactivate() {
 }
 
 // TimeTrackerクラス
-class TimeTracker {
+export class TimeTracker {
     private isTracking: boolean = true;
     private startTime: number;
     private fileTimers: Map<string, FileTimer>;
