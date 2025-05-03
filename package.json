@@ -1,0 +1,50 @@
+{
+  "name": "time-tracker",
+  "displayName": "Time Tracker",
+  "description": "Track time spent on your files with awesome UI",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "timeTracker.toggle",
+        "title": "Toggle Timer",
+        "icon": "$(watch)"
+      },
+      {
+        "command": "timeTracker.openPanel",
+        "title": "Open Time Tracker",
+        "icon": "$(graph)"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "timeTrackerView",
+          "name": "Time Tracker",
+          "icon": "$(watch)",
+          "contextualTitle": "Time Tracker"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {}
+}
