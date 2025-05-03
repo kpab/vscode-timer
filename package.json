@@ -1,13 +1,35 @@
 {
   "name": "time-tracker",
   "displayName": "Time Tracker",
-  "description": "Track time spent on your files with awesome UI",
+  "description": "Track time spent on your files with beautiful visualizations and floating timer",
   "version": "0.0.1",
   "publisher": "your-publisher-name",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/vscode-timer"
+  },
+  "keywords": [
+    "time",
+    "tracking",
+    "productivity",
+    "timer",
+    "analytics",
+    "timesheet",
+    "timekeeping"
+  ],
+  "categories": ["Other"],
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#764ba2",
+    "theme": "dark"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/vscode-timer/issues"
+  },
+  "homepage": "https://github.com/your-username/vscode-timer#readme",
   "engines": {
     "vscode": "^1.74.0"
   },
-  "categories": ["Other"],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
