@@ -12,9 +12,10 @@ export class TimeTrackerProvider implements vscode.TreeDataProvider<TimeTrackerI
     readonly onDidChangeTreeData: vscode.Event<TimeTrackerItem | undefined | void> = this._onDidChangeTreeData.event;
 
     constructor(private context: vscode.ExtensionContext, private timeTracker: any) {
+        // パネルを定期的に更新
         setInterval(() => {
             this.refresh();
-        }, 60000);
+        }, 10000); // 10秒ごとに更新
     }
 
     refresh(): void {
@@ -30,10 +31,18 @@ export class TimeTrackerProvider implements vscode.TreeDataProvider<TimeTrackerI
             // ルートレベル
             const items: TimeTrackerItem[] = [];
             
+            // 合計時間の計算
+            const fileTimers = this.timeTracker.getFileTimers();
+            let totalTime = 0;
+            for (const [, timer] of fileTimers) {
+                totalTime += timer.totalTime;
+            }
+            
             // 合計時間
+            const totalTimeStr = totalTime > 0 ? this.formatTime(totalTime) : '0h 0m';
             const totalItem = new TimeTrackerItem(
                 'Total Time',
-                '',
+                totalTimeStr,
                 'stopwatch',
                 vscode.TreeItemCollapsibleState.None
             );

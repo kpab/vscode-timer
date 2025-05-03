@@ -9,9 +9,10 @@ class TimeTrackerProvider {
         this.timeTracker = timeTracker;
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
+        // パネルを定期的に更新
         setInterval(() => {
             this.refresh();
-        }, 60000);
+        }, 10000); // 10秒ごとに更新
     }
     refresh() {
         this._onDidChangeTreeData.fire();
@@ -23,8 +24,15 @@ class TimeTrackerProvider {
         if (!element) {
             // ルートレベル
             const items = [];
+            // 合計時間の計算
+            const fileTimers = this.timeTracker.getFileTimers();
+            let totalTime = 0;
+            for (const [, timer] of fileTimers) {
+                totalTime += timer.totalTime;
+            }
             // 合計時間
-            const totalItem = new TimeTrackerItem('Total Time', '', 'stopwatch', vscode.TreeItemCollapsibleState.None);
+            const totalTimeStr = totalTime > 0 ? this.formatTime(totalTime) : '0h 0m';
+            const totalItem = new TimeTrackerItem('Total Time', totalTimeStr, 'stopwatch', vscode.TreeItemCollapsibleState.None);
             items.push(totalItem);
             // プロジェクトフォルダ
             const projectItem = new TimeTrackerItem('Active Files', '', 'folder', vscode.TreeItemCollapsibleState.Expanded);
