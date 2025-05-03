@@ -2,10 +2,12 @@ import * as vscode from 'vscode';
 import { TimeTrackerProvider } from './timeTrackerProvider';
 import { TimeCardGenerator } from './timeCardGenerator';
 import { FloatingTimer } from './floatingTimer';
+import { ExcludeFiles } from './excludeFiles';
 
 let statusBarItem: vscode.StatusBarItem;
 let timeTracker: TimeTracker;
 let floatingTimer: FloatingTimer | undefined;
+let excludeFiles: ExcludeFiles;
 
 export function activate(context: vscode.ExtensionContext) {
     // ステータスバーアイテムの作成
@@ -15,8 +17,11 @@ export function activate(context: vscode.ExtensionContext) {
     statusBarItem.tooltip = 'Time Tracker: Click to open panel';
     statusBarItem.show();
 
+    // ExcludeFilesの初期化
+    excludeFiles = new ExcludeFiles(context);
+
     // タイムトラッカーの初期化
-    timeTracker = new TimeTracker(context, statusBarItem);
+    timeTracker = new TimeTracker(context, statusBarItem, excludeFiles);
 
     // コマンドの登録
     const toggleCommand = vscode.commands.registerCommand('timeTracker.toggle', () => {
@@ -39,6 +44,14 @@ export function activate(context: vscode.ExtensionContext) {
             floatingTimer.show();
         }
     });
+    
+    const toggleExcludeCommand = vscode.commands.registerCommand('timeTracker.toggleExclude', () => {
+        excludeFiles.showExcludeDialog();
+    });
+    
+    const resetCommand = vscode.commands.registerCommand('timeTracker.reset', () => {
+        timeTracker.resetAllTimers();
+    });
 
     // Time Tracker View Provider
     const timeTrackerProvider = new TimeTrackerProvider(context, timeTracker);
@@ -47,6 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
     // エディタの変更監視
     vscode.window.onDidChangeActiveTextEditor(editor => {
         timeTracker.onEditorChange(editor);
+        excludeFiles.onActiveEditorChanged();
     });
 
     // 定期的な更新
@@ -60,6 +74,8 @@ export function activate(context: vscode.ExtensionContext) {
         openPanelCommand,
         generateTimeCardCommand,
         showFloatingTimerCommand,
+        toggleExcludeCommand,
+        resetCommand,
         { dispose: () => clearInterval(interval) }
     );
 }
@@ -78,10 +94,12 @@ export class TimeTracker {
     private currentFile: string | undefined;
     private context: vscode.ExtensionContext;
     private statusBarItem: vscode.StatusBarItem;
+    private excludeFiles: ExcludeFiles;
 
-    constructor(context: vscode.ExtensionContext, statusBarItem: vscode.StatusBarItem) {
+    constructor(context: vscode.ExtensionContext, statusBarItem: vscode.StatusBarItem, excludeFiles: ExcludeFiles) {
         this.context = context;
         this.statusBarItem = statusBarItem;
+        this.excludeFiles = excludeFiles;
         this.startTime = Date.now();
         this.fileTimers = this.loadFileTimers();
         this.currentFile = vscode.window.activeTextEditor?.document.fileName;
@@ -101,23 +119,26 @@ export class TimeTracker {
         if (!this.isTracking) return;
 
         // 現在のファイルの時間を保存
-        if (this.currentFile) {
+        if (this.currentFile && !this.excludeFiles.isExcluded(this.currentFile)) {
             this.updateCurrentFileTimer();
         }
 
         // 新しいファイルの開始
         if (editor) {
             this.currentFile = editor.document.fileName;
-            if (!this.fileTimers.has(this.currentFile)) {
-                this.fileTimers.set(this.currentFile, {
-                    totalTime: 0,
-                    lastStartTime: Date.now(),
-                    isTracking: true
-                });
-            } else {
-                const timer = this.fileTimers.get(this.currentFile)!;
-                timer.lastStartTime = Date.now();
-                timer.isTracking = true;
+            // 除外ファイルのチェック
+            if (!this.excludeFiles.isExcluded(this.currentFile)) {
+                if (!this.fileTimers.has(this.currentFile)) {
+                    this.fileTimers.set(this.currentFile, {
+                        totalTime: 0,
+                        lastStartTime: Date.now(),
+                        isTracking: true
+                    });
+                } else {
+                    const timer = this.fileTimers.get(this.currentFile)!;
+                    timer.lastStartTime = Date.now();
+                    timer.isTracking = true;
+                }
             }
         } else {
             this.currentFile = undefined;
@@ -125,7 +146,7 @@ export class TimeTracker {
     }
 
     update() {
-        if (!this.isTracking || !this.currentFile) return;
+        if (!this.isTracking || !this.currentFile || this.excludeFiles.isExcluded(this.currentFile)) return;
 
         this.updateCurrentFileTimer();
         this.updateStatusBar();
@@ -186,6 +207,21 @@ export class TimeTracker {
     
     getIsTracking(): boolean {
         return this.isTracking;
+    }
+    
+    async resetAllTimers() {
+        const result = await vscode.window.showWarningMessage(
+            'Are you sure you want to reset all time data?',
+            { modal: true },
+            'Yes',
+            'No'
+        );
+        
+        if (result === 'Yes') {
+            this.fileTimers.clear();
+            this.saveFileTimers();
+            vscode.window.showInformationMessage('All time data has been reset');
+        }
     }
 }
 

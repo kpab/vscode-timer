@@ -31,6 +31,16 @@
         "command": "timeTracker.showFloatingTimer",
         "title": "Show Floating Timer",
         "icon": "$(symbol-method)"
+      },
+      {
+        "command": "timeTracker.toggleExclude",
+        "title": "Toggle Exclude",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "timeTracker.reset",
+        "title": "Time Tracker: Reset All Time Data",
+        "icon": "$(clear-all)"
       }
     ],
     "views": {
@@ -52,6 +62,11 @@
         },
         {
           "command": "timeTracker.showFloatingTimer",
+          "when": "view == timeTrackerView",
+          "group": "navigation"
+        },
+        {
+          "command": "timeTracker.reset",
           "when": "view == timeTrackerView",
           "group": "navigation"
         }

@@ -1,0 +1,117 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExcludeFiles = void 0;
+const vscode = require("vscode");
+const path = require("path");
+class ExcludeFiles {
+    constructor(context) {
+        this.context = context;
+        this.excludedFiles = this.loadExcludedFiles();
+        // Create status bar item for excluded files
+        this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 99);
+        this.statusBarItem.command = 'timeTracker.toggleExclude';
+        this.updateStatusBarItem();
+        this.statusBarItem.show();
+        context.subscriptions.push(this.statusBarItem);
+    }
+    isExcluded(filePath) {
+        return this.excludedFiles.has(filePath);
+    }
+    toggleFile(filePath) {
+        if (this.excludedFiles.has(filePath)) {
+            this.excludedFiles.delete(filePath);
+        }
+        else {
+            this.excludedFiles.add(filePath);
+        }
+        this.saveExcludedFiles();
+        this.updateStatusBarItem();
+        return this.excludedFiles.has(filePath);
+    }
+    showExcludeDialog() {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            vscode.window.showInformationMessage('No active file to exclude');
+            return;
+        }
+        const filePath = activeEditor.document.fileName;
+        const fileName = path.basename(filePath);
+        const isExcluded = this.isExcluded(filePath);
+        const action = isExcluded ? 'Include' : 'Exclude';
+        const items = [
+            {
+                label: `${action} "${fileName}"`,
+                description: isExcluded ? 'Start tracking this file' : 'Stop tracking this file',
+                detail: filePath
+            },
+            {
+                label: 'Manage excluded files',
+                description: 'View and edit all excluded files'
+            }
+        ];
+        vscode.window.showQuickPick(items, {
+            placeHolder: 'Choose an action'
+        }).then(selected => {
+            if (!selected)
+                return;
+            if (selected.label.startsWith('Include') || selected.label.startsWith('Exclude')) {
+                this.toggleFile(filePath);
+                vscode.window.showInformationMessage(`${fileName} is now ${this.isExcluded(filePath) ? 'excluded' : 'included'}`);
+            }
+            else {
+                this.showExcludedFilesList();
+            }
+        });
+    }
+    showExcludedFilesList() {
+        const items = Array.from(this.excludedFiles).map(filePath => ({
+            label: path.basename(filePath),
+            description: filePath,
+            detail: 'Click to include back'
+        }));
+        if (items.length === 0) {
+            vscode.window.showInformationMessage('No files are currently excluded');
+            return;
+        }
+        vscode.window.showQuickPick(items, {
+            placeHolder: 'Select files to include back'
+        }).then(selected => {
+            if (selected && selected.description) {
+                this.toggleFile(selected.description);
+                vscode.window.showInformationMessage(`${selected.label} is now included`);
+            }
+        });
+    }
+    updateStatusBarItem() {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            this.statusBarItem.hide();
+            return;
+        }
+        const filePath = activeEditor.document.fileName;
+        const isExcluded = this.isExcluded(filePath);
+        if (isExcluded) {
+            this.statusBarItem.text = '$(eye-closed) Excluded';
+            this.statusBarItem.tooltip = 'This file is excluded from time tracking. Click to include it.';
+            this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+        }
+        else {
+            this.statusBarItem.text = '$(eye) Tracked';
+            this.statusBarItem.tooltip = 'This file is being tracked. Click to exclude it.';
+            this.statusBarItem.backgroundColor = undefined;
+        }
+        this.statusBarItem.show();
+    }
+    onActiveEditorChanged() {
+        this.updateStatusBarItem();
+    }
+    loadExcludedFiles() {
+        const saved = this.context.globalState.get('excludedFiles', []);
+        return new Set(saved);
+    }
+    saveExcludedFiles() {
+        this.context.globalState.update('excludedFiles', Array.from(this.excludedFiles));
+    }
+}
+exports.ExcludeFiles = ExcludeFiles;
+//# sourceMappingURL=excludeFiles.js.map
