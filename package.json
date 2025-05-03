@@ -2,8 +2,8 @@
   "name": "time-tracker",
   "displayName": "Time Tracker",
   "description": "Track time spent on your files with beautiful visualizations and floating timer",
-  "version": "0.0.1",
-  "publisher": "kpab",
+  "version": "0.1.1",
+  "publisher": "2TkH169ZAhYpfhilqBdFUEy7a9bE0UadFFKFfvm5f8ckRLfzL5r3JQQJ99BEACAAAAAAAAAAAAASAZDO1l2Z",
   "repository": {
     "type": "git",
     "url": "https://github.com/kpab/vscode-timer"
