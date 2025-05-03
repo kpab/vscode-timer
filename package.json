@@ -3,10 +3,10 @@
   "displayName": "Time Tracker",
   "description": "Track time spent on your files with beautiful visualizations and floating timer",
   "version": "0.0.1",
-  "publisher": "your-publisher-name",
+  "publisher": "kpab",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/vscode-timer"
+    "url": "https://github.com/kpab/vscode-timer"
   },
   "keywords": [
     "time",
@@ -17,16 +17,18 @@
     "timesheet",
     "timekeeping"
   ],
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "icon": "icon.png",
   "galleryBanner": {
     "color": "#764ba2",
     "theme": "dark"
   },
   "bugs": {
-    "url": "https://github.com/your-username/vscode-timer/issues"
+    "url": "https://github.com/kpab/vscode-timer/issues"
   },
-  "homepage": "https://github.com/your-username/vscode-timer#readme",
+  "homepage": "https://github.com/kpab/vscode-timer#readme",
   "engines": {
     "vscode": "^1.74.0"
   },
