@@ -26,6 +26,11 @@
         "command": "timeTracker.generateTimeCard",
         "title": "Generate Time Card",
         "icon": "$(preview)"
+      },
+      {
+        "command": "timeTracker.showFloatingTimer",
+        "title": "Show Floating Timer",
+        "icon": "$(symbol-method)"
       }
     ],
     "views": {
@@ -42,6 +47,11 @@
       "view/title": [
         {
           "command": "timeTracker.generateTimeCard",
+          "when": "view == timeTrackerView",
+          "group": "navigation"
+        },
+        {
+          "command": "timeTracker.showFloatingTimer",
           "when": "view == timeTrackerView",
           "group": "navigation"
         }

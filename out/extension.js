@@ -4,8 +4,10 @@ exports.TimeTracker = exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
 const timeTrackerProvider_1 = require("./timeTrackerProvider");
 const timeCardGenerator_1 = require("./timeCardGenerator");
+const floatingTimer_1 = require("./floatingTimer");
 let statusBarItem;
 let timeTracker;
+let floatingTimer;
 function activate(context) {
     // ステータスバーアイテムの作成
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -26,6 +28,14 @@ function activate(context) {
     const generateTimeCardCommand = vscode.commands.registerCommand('timeTracker.generateTimeCard', () => {
         timeCardGenerator_1.TimeCardGenerator.generateTimeCard(context, timeTracker);
     });
+    const showFloatingTimerCommand = vscode.commands.registerCommand('timeTracker.showFloatingTimer', () => {
+        if (!floatingTimer) {
+            floatingTimer = new floatingTimer_1.FloatingTimer(context, timeTracker);
+        }
+        else {
+            floatingTimer.show();
+        }
+    });
     // Time Tracker View Provider
     const timeTrackerProvider = new timeTrackerProvider_1.TimeTrackerProvider(context, timeTracker);
     vscode.window.registerTreeDataProvider('timeTrackerView', timeTrackerProvider);
@@ -37,7 +47,7 @@ function activate(context) {
     const interval = setInterval(() => {
         timeTracker.update();
     }, 60000); // 1分ごと
-    context.subscriptions.push(statusBarItem, toggleCommand, openPanelCommand, generateTimeCardCommand, { dispose: () => clearInterval(interval) });
+    context.subscriptions.push(statusBarItem, toggleCommand, openPanelCommand, generateTimeCardCommand, showFloatingTimerCommand, { dispose: () => clearInterval(interval) });
 }
 exports.activate = activate;
 function deactivate() {
@@ -143,6 +153,9 @@ class TimeTracker {
     }
     getFileTimers() {
         return this.fileTimers;
+    }
+    getIsTracking() {
+        return this.isTracking;
     }
 }
 exports.TimeTracker = TimeTracker;

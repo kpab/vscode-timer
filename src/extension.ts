@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
 import { TimeTrackerProvider } from './timeTrackerProvider';
 import { TimeCardGenerator } from './timeCardGenerator';
+import { FloatingTimer } from './floatingTimer';
 
 let statusBarItem: vscode.StatusBarItem;
 let timeTracker: TimeTracker;
+let floatingTimer: FloatingTimer | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     // ステータスバーアイテムの作成
@@ -29,6 +31,14 @@ export function activate(context: vscode.ExtensionContext) {
     const generateTimeCardCommand = vscode.commands.registerCommand('timeTracker.generateTimeCard', () => {
         TimeCardGenerator.generateTimeCard(context, timeTracker);
     });
+    
+    const showFloatingTimerCommand = vscode.commands.registerCommand('timeTracker.showFloatingTimer', () => {
+        if (!floatingTimer) {
+            floatingTimer = new FloatingTimer(context, timeTracker);
+        } else {
+            floatingTimer.show();
+        }
+    });
 
     // Time Tracker View Provider
     const timeTrackerProvider = new TimeTrackerProvider(context, timeTracker);
@@ -49,6 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
         toggleCommand,
         openPanelCommand,
         generateTimeCardCommand,
+        showFloatingTimerCommand,
         { dispose: () => clearInterval(interval) }
     );
 }
@@ -171,6 +182,10 @@ export class TimeTracker {
 
     getFileTimers(): Map<string, FileTimer> {
         return this.fileTimers;
+    }
+    
+    getIsTracking(): boolean {
+        return this.isTracking;
     }
 }
 
