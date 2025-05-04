@@ -1,8 +1,8 @@
 {
   "name": "time-tracker-card",
-  "displayName": "TimeTracker",
+  "displayName": "Time-Tracker",
   "description": "Track time spent on your files with beautiful visualizations and floating timer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "kpab",
   "repository": {
     "type": "git",
