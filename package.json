@@ -1,5 +1,5 @@
 {
-  "name": "time-tracker",
+  "name": "time-tracker-card",
   "displayName": "TimeTracker",
   "description": "Track time spent on your files with beautiful visualizations and floating timer",
   "version": "0.1.1",
